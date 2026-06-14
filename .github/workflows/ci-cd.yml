@@ -38,7 +38,7 @@ jobs:
         run: pytest
 
       # -------------------------
-      # Frontend: install and build
+      # Frontend: install and build check
       # -------------------------
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -56,13 +56,10 @@ jobs:
         run: npm run build
 
       # -------------------------
-      # Docker build
+      # Backend Docker build
       # -------------------------
       - name: Build backend Docker image
         run: docker build -t ai-studymate-backend ./backend
-
-      - name: Build frontend Docker image
-        run: docker build --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} -t ai-studymate-frontend ./frontend
 
       # -------------------------
       # AWS login - only on push
@@ -81,7 +78,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       # -------------------------
-      # Push images to ECR
+      # Push backend image to ECR
       # -------------------------
       - name: Push backend image to ECR
         if: github.event_name == 'push'
@@ -93,17 +90,6 @@ jobs:
           docker tag ai-studymate-backend:latest $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:latest
           docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:${{ github.sha }}
           docker push $ECR_REGISTRY/$ECR_BACKEND_REPOSITORY:latest
-
-      - name: Push frontend image to ECR
-        if: github.event_name == 'push'
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_FRONTEND_REPOSITORY: ${{ secrets.ECR_FRONTEND_REPOSITORY }}
-        run: |
-          docker tag ai-studymate-frontend:latest $ECR_REGISTRY/$ECR_FRONTEND_REPOSITORY:${{ github.sha }}
-          docker tag ai-studymate-frontend:latest $ECR_REGISTRY/$ECR_FRONTEND_REPOSITORY:latest
-          docker push $ECR_REGISTRY/$ECR_FRONTEND_REPOSITORY:${{ github.sha }}
-          docker push $ECR_REGISTRY/$ECR_FRONTEND_REPOSITORY:latest
 
       # -------------------------
       # Render ECS task definition
