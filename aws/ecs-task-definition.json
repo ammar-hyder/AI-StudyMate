@@ -21,7 +21,7 @@
       "environment": [
         {
           "name": "GEMINI_API_KEY",
-          "value": "replace-with-github-actions-or-secrets-manager"
+          "value": "PLACEHOLDER_GEMINI_API_KEY"
         },
         {
           "name": "EMAIL_LAMBDA_FUNCTION_NAME",
@@ -29,15 +29,18 @@
         },
         {
           "name": "AWS_REGION",
-          "value": "us-east-1"
+          "value": "eu-north-1"
         },
         {
           "name": "CORS_ORIGINS",
-          "value": "[http://localhost:3000,http://localhost:5173]"
+          "value": "*"
         }
       ],
       "healthCheck": {
-        "command": ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""],
+        "command": [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""
+        ],
         "interval": 30,
         "timeout": 5,
         "retries": 3,
@@ -47,7 +50,7 @@
         "logDriver": "awslogs",
         "options": {
           "awslogs-group": "/ecs/ai-studymate-backend",
-          "awslogs-region": "us-east-1",
+          "awslogs-region": "eu-north-1",
           "awslogs-stream-prefix": "ecs"
         }
       }

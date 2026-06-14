@@ -17,6 +17,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # -------------------------
+      # Backend: install and test
+      # -------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -24,12 +27,19 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: backend
-        run: pip install -r requirements.txt
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Run backend tests
         working-directory: backend
+        env:
+          PYTHONPATH: ${{ github.workspace }}/backend
         run: pytest
 
+      # -------------------------
+      # Frontend: install and build
+      # -------------------------
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -45,12 +55,21 @@ jobs:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
         run: npm run build
 
+      # -------------------------
+      # Docker build
+      # -------------------------
       - name: Build backend Docker image
         run: docker build -t ai-studymate-backend ./backend
 
       - name: Build frontend Docker image
-        run: docker build --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} -t ai-studymate-frontend ./frontend
+        run: |
+          docker build \
+            --build-arg VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }} \
+            -t ai-studymate-frontend ./frontend
 
+      # -------------------------
+      # AWS login - only on push
+      # -------------------------
       - name: Configure AWS credentials
         if: github.event_name == 'push'
         uses: aws-actions/configure-aws-credentials@v4
@@ -64,6 +83,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      # -------------------------
+      # Push images to ECR
+      # -------------------------
       - name: Push backend image to ECR
         if: github.event_name == 'push'
         env:
@@ -86,12 +108,14 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_FRONTEND_REPOSITORY:${{ github.sha }}
           docker push $ECR_REGISTRY/$ECR_FRONTEND_REPOSITORY:latest
 
+      # -------------------------
+      # Render ECS task definition
+      # -------------------------
       - name: Render backend ECS task definition
         if: github.event_name == 'push'
         id: render-backend
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          # ECS_TASK_DEFINITION should point to aws/ecs-task-definition.json or a downloaded production task definition.
           task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
           container-name: ai-studymate-backend
           image: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_BACKEND_REPOSITORY }}:${{ github.sha }}
@@ -99,7 +123,11 @@ jobs:
             GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
             EMAIL_LAMBDA_FUNCTION_NAME=${{ secrets.EMAIL_LAMBDA_FUNCTION_NAME }}
             AWS_REGION=${{ secrets.AWS_REGION }}
+            CORS_ORIGINS=*
 
+      # -------------------------
+      # Deploy to ECS
+      # -------------------------
       - name: Deploy backend to ECS
         if: github.event_name == 'push'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v2

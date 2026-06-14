@@ -211,6 +211,21 @@ Required GitHub Secrets:
 - `EMAIL_LAMBDA_FUNCTION_NAME`
 - `VITE_API_BASE_URL`
 
+Expected values:
+
+```text
+AWS_REGION=eu-north-1
+ECR_BACKEND_REPOSITORY=ai-studymate-backend
+ECR_FRONTEND_REPOSITORY=ai-studymate-frontend
+ECS_CLUSTER=ai-studymate-cluster
+ECS_SERVICE=ai-studymate-backend-service
+ECS_TASK_DEFINITION=aws/ecs-task-definition.json
+EMAIL_LAMBDA_FUNCTION_NAME=ai-studymate-email-lambda
+VITE_API_BASE_URL=http://YOUR_ALB_DNS
+```
+
+Store the real Gemini key only in the `GEMINI_API_KEY` GitHub Secret. Do not commit API keys or AWS access keys to task definition files, `.env` examples, or documentation.
+
 ## AWS Deployment
 
 Use `aws/deployment-notes.md` for the full deployment checklist.
