@@ -1,0 +1,48 @@
+{
+  "family": "ai-studymate-backend-task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::848865119413:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::848865119413:role/ai-studymate-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "ai-studymate-backend",
+      "image": "848865119413.dkr.ecr.eu-north-1.amazonaws.com/ai-studymate-backend:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "GEMINI_API_KEY",
+          "value": "AIzaSyArkfpJQH6FMxwUjWYFCbrRwACgEgcKa2U"
+        },
+        {
+          "name": "EMAIL_LAMBDA_FUNCTION_NAME",
+          "value": "ai-studymate-email-lambda"
+        },
+        {
+          "name": "AWS_REGION",
+          "value": "eu-north-1"
+        },
+        {
+          "name": "CORS_ORIGINS",
+          "value": "*"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/ai-studymate-backend",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}

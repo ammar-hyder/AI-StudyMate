@@ -1,0 +1,24 @@
+{
+  "email": "k224816@nu.edu.pk",
+  "study_material": {
+    "summary": "This is a test summary from AI StudyMate Lambda.",
+    "flashcards": [
+      {
+        "question": "What is DevOps?",
+        "answer": "DevOps combines development and operations."
+      }
+    ],
+    "mcqs": [
+      {
+        "question": "What does CI/CD stand for?",
+        "options": ["A", "B", "C", "D"],
+        "answer": "Continuous Integration / Continuous Deployment"
+      }
+    ],
+    "revision_points": [
+      "Docker containerizes applications.",
+      "ECS runs containers on AWS.",
+      "Lambda sends email using SES."
+    ]
+  }
+}
