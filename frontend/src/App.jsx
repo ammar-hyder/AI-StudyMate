@@ -62,7 +62,7 @@ export default function App() {
     <main className="app-shell">
       <header className="app-header">
         <div>
-          <p className="eyebrow">Semester DevOps Project</p>
+          <p className="eyebrow">Semester DevOps Project (22K-4816,22K-5156,22K-5186)</p>
           <h1>AI StudyMate</h1>
           <p className="subtitle">
             Generate summaries, flashcards, MCQs, and revision points from your notes.
